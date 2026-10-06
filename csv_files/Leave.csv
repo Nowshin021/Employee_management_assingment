@@ -1,0 +1,11 @@
+leaveId,type,startDate,endDate,status,staffId
+1,Annual Leave,2026-01-05,2026-01-12,Approved,1
+2,Sick Leave,2026-02-10,2026-02-11,Approved,2
+3,Annual Leave,2026-03-01,2026-03-08,Pending,3
+4,Personal Leave,2026-01-20,2026-01-21,Approved,4
+5,Annual Leave,2026-04-14,2026-04-21,Approved,5
+6,Sick Leave,2026-02-02,2026-02-03,Approved,6
+7,Long Service Leave,2026-05-01,2026-05-15,Pending,7
+8,Annual Leave,2026-03-20,2026-03-25,Approved,8
+9,Personal Leave,2026-02-18,2026-02-19,Rejected,9
+10,Annual Leave,2026-06-01,2026-06-07,Approved,10

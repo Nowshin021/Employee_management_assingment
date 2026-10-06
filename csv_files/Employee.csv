@@ -1,0 +1,11 @@
+staffId,name,DOB,contact,address,startDate,deptId,campusId
+1,Liam Carter,1985-03-12,0412345671,"12 King St, Sydney",2016-02-01,1,1
+2,Ava Thompson,1990-07-22,0412345672,"45 Queen St, Melbourne",2018-05-15,3,2
+3,Noah Wilson,1982-11-05,0412345673,"7 Park Rd, Brisbane",2014-09-10,1,3
+4,Mia Robinson,1993-01-30,0412345674,"19 Ocean Ave, Perth",2020-03-01,3,4
+5,Ethan Walker,1988-06-18,0412345675,"23 Bridge St, Sydney",2017-08-20,2,1
+6, Sophie Anderson,1991-09-09,0412345676,"8 River Ln, Adelaide",2019-01-11,5,5
+7,Jack Mitchell,1979-12-25,0412345677,"56 Hill Rd, Darwin",2012-04-05,5,6
+8,Chloe Baker,1996-04-14,0412345678,"3 Sunset Blvd, Canberra",2022-06-01,4,7
+9,Lucas Turner,1998-02-27,0412345679,"61 Beach Rd, Hobart",2023-02-14,4,8
+10,Grace Phillips,1995-10-03,0412345680,"29 Market St, Gold Coast",2021-07-19,9,9
