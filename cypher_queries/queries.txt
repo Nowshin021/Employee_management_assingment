@@ -1,0 +1,54 @@
+// USE CASE  (COMPLEX / ADVANCED): Talent Evaluation & Leadership Review Hierarchy
+// ==============================================================================
+// Scenario:
+// For executive workforce promotion and retention planning, HR leadership needs to
+// identify high-performing staff who achieved superior performance ratings, trace the
+// reviewer who conducted the appraisal, check contract renewal/permanency status,
+// and collect all verified academic qualifications held by the employee.
+// ==============================================================================
+ 
+MATCH (e:Employee)-[:RECEIVED_REVIEW]->(rev:PerformanceReview)
+MATCH (reviewer:Employee)-[:CONDUCTED_REVIEW]->(rev)
+OPTIONAL MATCH (e)-[:HAS_CONTRACT]->(ec:EmployementContract)
+OPTIONAL MATCH (e)-[:ACHIEVED]->(q:Qualification)
+OPTIONAL MATCH (e)-[:HOLDS_POSITION]->(pos:Position)
+WHERE rev.rating IN ['Exceeds Expectations', 'Outstanding', 'High Performing'] 
+   OR rev.rating CONTAINS 'Exceed'
+RETURN e.staffId AS StaffID,
+       e.name AS HighPerformer,
+       pos.title AS CurrentPosition,
+       rev.rating AS PerformanceRating,
+       rev.period AS ReviewPeriod,
+       reviewer.name AS ReviewedBy,
+       ec.type AS ContractType,
+       CASE 
+         WHEN ec.endDate IS NULL OR ec.endDate = '' THEN 'Permanent / Indefinite'
+         ELSE ec.endDate 
+       END AS ContractEndDate,
+       collect(DISTINCT q.type + ' (' + q.institution + ')') AS Qualifications
+ORDER BY HighPerformer;
+
+
+// ==============================================================================
+// USE CASE  (HIGH COMPLEXITY): Multi-Hop Unit Offering Delivery & Teaching Staffing
+// ==============================================================================
+// Scenario:
+// The Academic Registrar must monitor unit offerings across multi-campus deliveries.
+// This multi-hop query traverses from UnitOfferings to their parent Unit, delivery Campus,
+// and associated Timesheet logs, identifying total hours taught and consolidating the
+// list of academic instructors involved in teaching each offering.
+// ==============================================================================
+ 
+MATCH (uo:UnitOffering)-[:OFFERS_UNIT]->(u:Unit)
+MATCH (uo)-[:DELIVERED_AT]->(c:Campus)
+OPTIONAL MATCH (t:Timesheet)-[:FOR_UNIT_OFFERING]->(uo)
+OPTIONAL MATCH (staff:Employee)-[:SUBMITTED]->(t)
+RETURN u.unitCode AS UnitCode,
+       u.title AS UnitTitle,
+       uo.semester + ' ' + toInteger(uo.year) AS Semester,
+       c.name AS CampusLocation,
+       count(DISTINCT t) AS TotalTimesheetLogs,
+       coalesce(sum(t.hoursWorked), 0.0) AS TotalTeachingHoursLogged,
+       collect(DISTINCT staff.name) AS InstructorsInvolved
+ORDER BY UnitCode, Semester;
+ 
