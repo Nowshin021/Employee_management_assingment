@@ -2,10 +2,33 @@ contractId,type,startDate,endDate,staffId
 1,Permanent Full-Time,2016-02-01,,1
 2,Permanent Full-Time,2018-05-15,,2
 3,Permanent Full-Time,2014-09-10,,3
-4,Fixed-Term,2020-03-01,2026-03-01,4
-5,Permanent Full-Time,2017-08-20,,5
-6,Permanent Part-Time,2019-01-11,,6
-7,Permanent Full-Time,2012-04-05,,7
-8,Casual,2022-06-01,,8
-9,Casual,2023-02-14,,9
-10,Casual,2021-07-19,,10
+4,Fixed-Term,2020-03-01,2023-06-30,4
+5,Permanent Full-Time,2023-07-01,,4
+6,Permanent Full-Time,2017-08-20,,5
+7,Permanent Part-Time,2019-01-11,,6
+8,Permanent Full-Time,2012-04-05,,7
+9,Casual,2022-06-01,,8
+10,Casual,2023-02-14,,9
+11,Casual,2021-07-19,,10
+12,Permanent Full-Time,2008-01-14,,11
+13,Permanent Full-Time,2011-07-04,,12
+14,Permanent Full-Time,2010-02-01,,13
+15,Permanent Full-Time,2015-03-02,,14
+16,Permanent Full-Time,2019-07-15,,15
+17,Fixed-Term,2022-02-07,2024-02-06,16
+18,Permanent Full-Time,2024-02-07,,16
+19,Permanent Full-Time,2012-08-20,,17
+20,Permanent Full-Time,2009-03-16,,18
+21,Fixed-Term,2020-02-10,2023-02-09,19
+22,Fixed-Term,2023-02-10,2027-02-09,19
+23,Permanent Full-Time,2016-07-18,,20
+24,Fixed-Term,2021-01-25,2026-12-31,21
+25,Permanent Full-Time,2017-02-13,,22
+26,Permanent Full-Time,2014-05-05,,23
+27,Permanent Full-Time,2016-10-10,,24
+28,Permanent Full-Time,2020-09-14,,25
+29,Fixed-Term,2023-03-06,2027-03-05,26
+30,Casual,2023-07-17,,27
+31,Casual,2024-02-19,,28
+32,Casual,2024-07-08,,29
+33,Casual,2022-07-25,,30

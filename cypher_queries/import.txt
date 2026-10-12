@@ -79,7 +79,7 @@ ON CREATE SET e.name = trim(row.name),
 LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Nowshin021/Employee_management_assingment/nazia/csv_files/AcademicStaff.csv' AS row
 MATCH (e:Employee {staffId: toInteger(row.staffId)})
 SET e:AcademicStaff,
-    e.discipline = trim(row.disciplie),
+    e.discipline = trim(row.discipline),
     e.highestQualification = trim(row.highestQualification),
     e.researchArea = trim(row.researchArea);
 
@@ -155,6 +155,13 @@ MATCH (c:Campus {campusId: toInteger(row.campusId)})
 MERGE (e)-[:WORKS_IN]->(d)
 MERGE (e)-[:LOCATED_AT]->(c);
 
+// --- 3.2.1 Employee reports to Manager (self-referencing hierarchy) ---
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Nowshin021/Employee_management_assingment/nazia/csv_files/Employee.csv' AS row
+WITH row WHERE row.managerId IS NOT NULL
+MATCH (e:Employee {staffId: toInteger(row.staffId)})
+MATCH (m:Employee {staffId: toInteger(row.managerId)})
+MERGE (e)-[:REPORTS_TO]->(m);
+
 // --- 3.3 Employee holds Position (Junction table) ---
 LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Nowshin021/Employee_management_assingment/nazia/csv_files/EmployeePosition.csv' AS row
 MATCH (e:Employee {staffId: toInteger(row.staffId)})
@@ -185,9 +192,21 @@ MATCH (c:Campus {campusId: toInteger(row.campusId)})
 MERGE (uo)-[:OFFERS_UNIT]->(u)
 MERGE (uo)-[:DELIVERED_AT]->(c);
 
-// --- 3.7 Timesheet submitted by Employee and logged for Unit Offering ---
+// --- 3.6.1 Unit owned by Department (School) ---
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Nowshin021/Employee_management_assingment/nazia/csv_files/Unit.csv' AS row
+MATCH (u:Unit {unitCode: trim(row.unitCode)})
+MATCH (d:Department {deptId: toInteger(row.deptId)})
+MERGE (u)-[:OWNED_BY]->(d);
+
+// --- 3.6.2 Academic staff coordinates Unit Offering ---
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Nowshin021/Employee_management_assingment/nazia/csv_files/UnitOffering.csv' AS row
+MATCH (uo:UnitOffering {unitOfferingId: toInteger(row.unitOfferingId)})
+MATCH (coord:AcademicStaff {staffId: toInteger(row.coordinatorId)})
+MERGE (coord)-[:COORDINATES]->(uo);
+
+// --- 3.7 Timesheet submitted by Casual Sessional Staff and logged for Unit Offering ---
 LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Nowshin021/Employee_management_assingment/nazia/csv_files/TimeSheet.csv' AS row
-MATCH (e:Employee {staffId: toInteger(row.staffId)})
+MATCH (e:CasualSessionalStaff {staffId: toInteger(row.staffId)})
 MATCH (t:Timesheet {timesheetId: toInteger(row.timesheetID)})
 MERGE (e)-[:SUBMITTED]->(t)
 WITH row, t

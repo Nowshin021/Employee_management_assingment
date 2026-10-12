@@ -1,5 +1,17 @@
-staffId,disciplie,highestQualification,researchArea
-1,Civil Engineering,PHD Civil Engineering,Structural Resilience
+staffId,discipline,highestQualification,researchArea
+1,Civil Engineering,PhD Civil Engineering,Structural Resilience
 2,Architecture,Master of Architecture,Sustainable Design
 3,Civil Engineering,PhD Structural Engineering,Seismic Design
-4,Construction Management,Master of Construction Mgmt,Lean Construction
+4,Construction Management,Master of Construction Management,Lean Construction
+11,Civil Engineering,PhD Civil Engineering,Infrastructure Asset Management
+12,Construction Management,PhD Construction Management,Construction Productivity
+13,Architecture,PhD Architecture,Urban Design
+14,Construction Management,PhD Construction Management,Project Scheduling & Cost Control
+15,Civil Engineering,Master of Engineering,Geotechnical Engineering
+16,Architecture,Master of Architecture,Building Information Modelling
+17,Environmental Science,PhD Environmental Science,Sustainable Building Materials
+18,Law,PhD Law,Construction Contract Law
+19,Environmental Science,PhD Environmental Science,Environmental Impact Assessment
+20,Economics,PhD Economics,Infrastructure Economics
+21,Construction Management,Master of Construction Management,Construction Safety
+22,Civil Engineering,PhD Structural Engineering,Composite Materials
