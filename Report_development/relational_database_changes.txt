@@ -1,0 +1,168 @@
+==============================================================================
+PRT563 ADVANCED DATA MANAGEMENT - ASSIGNMENT 4
+Changes Made to the Relational Database (SQLite.db)
+==============================================================================
+
+Before migrating to Neo4j, the relational database from Assessment 2 was
+revised. The changes fall into three groups:
+
+  1. Schema (structural) changes
+  2. Data integrity fixes
+  3. Data content changes (university context and data volume)
+
+All tables except the unused "demo" table were dropped, re-created with the
+revised schema, and re-populated. The CSV files in csv_files/ were then
+re-exported from the revised database.
+
+
+------------------------------------------------------------------------------
+1. SCHEMA CHANGES
+------------------------------------------------------------------------------
+
+1.1 Employee - new column: managerId
+    Definition : managerId INTEGER NULL,
+                 FOREIGN KEY (managerId) REFERENCES Employee(staffId)
+    Change     : Self-referencing (recursive) foreign key recording each
+                 employee's line manager. NULL for top-level staff
+                 (Pro Vice-Chancellor and Director, Corporate Services).
+    Reason     : The original schema had no reporting line, so the
+                 organisational hierarchy could not be represented. This
+                 hierarchy is central to an HR system and gives the graph a
+                 meaningful employee-to-employee structure.
+
+1.2 Unit - new column: deptId
+    Definition : deptId INTEGER NOT NULL,
+                 FOREIGN KEY (deptId) REFERENCES Department(deptId)
+    Change     : Each unit is now owned by an academic school (department).
+    Reason     : Units were previously not linked to any part of the
+                 organisation, so the teaching data was disconnected from the
+                 department/faculty structure.
+
+1.3 UnitOffering - new column: coordinatorId
+    Definition : coordinatorId INTEGER NOT NULL,
+                 FOREIGN KEY (coordinatorId) REFERENCES AcademicStaff(staffId)
+    Change     : Each unit offering has an academic unit coordinator.
+    Reason     : Timesheet.staffId references CasualSessionalStaff, so only
+                 casual staff could be linked to teaching. Academic staff had
+                 no link to any unit offering, which does not reflect a
+                 university. The coordinator column links academics to
+                 teaching without changing the Timesheet rule.
+
+1.4 AcademicStaff - column renamed: disciplie -> discipline
+    Reason     : Spelling error in the original column name.
+
+1.5 PerformanceReview - foreign key corrected
+    Before     : FOREIGN KEY (staffId)    REFERENCES Employee(staffId)
+                 FOREIGN KEY (staffId)    REFERENCES Employee(staffId)
+    After      : FOREIGN KEY (staffId)    REFERENCES Employee(staffId)
+                 FOREIGN KEY (reviewerId) REFERENCES Employee(staffId)
+    Reason     : The original table declared the staffId foreign key twice,
+                 so reviewerId was never checked against Employee.
+
+1.6 Unchanged design decisions
+    - Table names are unchanged (including "EmployementContract" and
+      "Timesheet") so that existing scripts keep working.
+    - Timesheet.staffId still references CasualSessionalStaff(staffId); only
+      casual sessional staff submit timesheets.
+    - The supertype/subtype design (Employee -> AcademicStaff,
+      ProfessionalStaff, CasualSessionalStaff) is unchanged. Each employee
+      belongs to exactly one subtype.
+
+
+------------------------------------------------------------------------------
+2. DATA INTEGRITY FIXES
+------------------------------------------------------------------------------
+
+2.1 Foreign key violation between Unit and UnitOffering (CON107)
+    Problem : Unit stored the code 'CON107 ' (trailing space), while
+              UnitOffering stored 'CON107'.
+    Fix     : The unit code is stored as 'CON107' in both tables.
+
+2.2 Leading/trailing spaces removed
+    Examples: ' Sophie Anderson' (Employee.name), 'Brisbane Depot '
+              (Campus.name), ' Brisbane, QLD' (Campus.location).
+
+2.3 Inconsistent qualification values
+    Problem : AcademicStaff.highestQualification held 'PHD Civil Engineering'
+              while Qualification.type held 'PhD Civil Engineering'.
+    Fix     : Every highestQualification value now exactly matches a
+              Qualification.type record held by the same staff member.
+
+2.4 Pay records inconsistent with timesheets
+    Problem : Casual pay was for period 2026-02 but all timesheets were dated
+              2026-03, and gross pay did not equal hours worked x hourly rate
+              (e.g. staff 8: 25 h x $42.50 = $1,062.50, but paid $552.50).
+    Fix     : Casual gross pay = total hours in the pay period x hourlyRate.
+              Salaried pay is based on the classification level of the
+              employee's primary position (0.6 for the part-time employee).
+
+2.5 Missing and orphaned records
+    - Staff 10 had no EmployeePosition record; every employee now has exactly
+      one current primary position.
+    - Departments 6, 7, 8 and 10, campus 10 and positions 5 and 8 were never
+      referenced. Every Faculty, Department, Campus, Position and Unit is now
+      referenced by at least one record.
+    - Staff 4's Fixed-Term contract had expired (2026-03-01) while they were
+      still employed; a follow-on Permanent Full-Time contract was added.
+    - Every employee's start date matches their first position and first
+      contract start date.
+
+2.6 Duplicate file removed
+    csv_files/PerformenceReview.csv was a misspelled copy of the AcademicStaff
+    data with no header row. It did not correspond to any table and was
+    deleted.
+
+
+------------------------------------------------------------------------------
+3. DATA CONTENT CHANGES
+------------------------------------------------------------------------------
+
+3.1 University context
+    The original data described a construction company rather than a
+    university, which conflicted with the schema (Faculty, AcademicStaff,
+    Unit, Semester). The values were replaced as follows:
+
+    Table       Before (examples)                     After (examples)
+    ----------  ------------------------------------  ------------------------------------
+    Campus      Sydney Head Office, Brisbane Depot,   Sydney City Campus, Melbourne
+                Adelaide Yard, Darwin Site            Campus, Brisbane Campus, Perth
+                                                      Campus, Darwin Campus
+    Faculty     Corporate Services, Logistics &       Faculty of Engineering & Built
+                Procurement, Information Technology   Environment; Faculty of Science,
+                                                      Business & Law; Corporate Services
+                                                      Division
+    Department  Site Safety, Procurement, Cost        School of Civil Engineering, School
+                Management, IT Service                of Construction Management, Human
+                                                      Resources, Finance & Payroll
+    Position    Site Engineer, Casual Labourer,       Lecturer, Senior Lecturer, Head of
+                Safety Officer (levels L1-L7)         School, Sessional Tutor, HR Officer
+                                                      (Academic Levels A-E, HEW levels)
+    Qualif.     Certificate III Construction held     Bachelor/Master degrees held by
+                by teaching staff                     sessional teaching staff
+
+    Mismatches between staff and roles were also corrected, e.g. academic
+    staff holding "Site Engineer"/"Architect" positions, and a Human Resources
+    employee placed in the Finance department.
+
+    Note: Department.facultyId is NOT NULL, so the non-academic departments
+    (Human Resources, Finance & Payroll, IT Services) are grouped under a
+    "Corporate Services Division" record in the Faculty table.
+
+3.2 Relationship structure and data volume
+    The original data was almost entirely one-to-one (one department per
+    faculty, about one employee per campus, one offering per unit, one record
+    of each kind per employee). The data was expanded so that relationships
+    are one-to-many and many-to-many:
+
+    - Each faculty contains 2-3 departments.
+    - Staff are concentrated on 5 campuses (1-14 staff each).
+    - Each unit is offered 2-3 times across campuses and semesters.
+    - Several casual staff tutor the same units, and academic staff coordinate
+      several offerings.
+    - Employees have position history (promotions) and concurrent positions
+      (e.g. Head of School + Professor).
+    - Employees hold 1-3 qualifications, and degrees and institutions are
+      shared across staff.
+    - Performance reviews cover two periods ("2025 Annual" and
+      "2026 Mid-Year"); the reviewer is always the employee's manager.
+    - Pay records cover two periods (2025-08 and 2026-03).

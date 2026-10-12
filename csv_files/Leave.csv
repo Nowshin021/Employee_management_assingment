@@ -1,0 +1,31 @@
+leaveId,type,startDate,endDate,status,staffId
+1,Annual Leave,2026-01-05,2026-01-12,Approved,1
+2,Sick Leave,2026-02-10,2026-02-11,Approved,2
+3,Annual Leave,2026-07-06,2026-07-17,Approved,3
+4,Personal Leave,2026-01-20,2026-01-21,Approved,4
+5,Annual Leave,2026-04-14,2026-04-21,Approved,5
+6,Sick Leave,2026-02-02,2026-02-03,Approved,6
+7,Long Service Leave,2026-11-02,2026-11-27,Pending,7
+8,Annual Leave,2026-07-13,2026-07-17,Approved,8
+9,Personal Leave,2026-02-18,2026-02-19,Rejected,9
+10,Annual Leave,2026-06-29,2026-07-03,Approved,10
+11,Conference Leave,2025-11-24,2025-11-28,Approved,1
+12,Conference Leave,2025-11-24,2025-11-28,Approved,22
+13,Annual Leave,2026-01-05,2026-01-23,Approved,11
+14,Conference Leave,2026-06-15,2026-06-19,Approved,12
+15,Annual Leave,2026-12-21,2027-01-08,Pending,13
+16,Sick Leave,2026-03-16,2026-03-17,Approved,14
+17,Parental Leave,2026-08-03,2027-01-29,Approved,15
+18,Annual Leave,2026-07-06,2026-07-10,Approved,16
+19,Conference Leave,2026-09-07,2026-09-11,Approved,17
+20,Conference Leave,2026-09-07,2026-09-11,Approved,19
+21,Annual Leave,2026-01-12,2026-01-23,Approved,18
+22,Sick Leave,2025-08-25,2025-08-26,Approved,20
+23,Annual Leave,2026-07-06,2026-07-17,Pending,21
+24,Annual Leave,2025-12-22,2026-01-09,Approved,23
+25,Personal Leave,2026-05-11,2026-05-11,Approved,24
+26,Annual Leave,2026-10-19,2026-10-23,Pending,25
+27,Sick Leave,2026-04-07,2026-04-08,Approved,26
+28,Personal Leave,2025-08-15,2025-08-15,Rejected,27
+29,Annual Leave,2026-01-12,2026-01-16,Approved,28
+30,Sick Leave,2026-03-23,2026-03-24,Approved,30
