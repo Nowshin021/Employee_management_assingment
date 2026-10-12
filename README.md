@@ -19,7 +19,7 @@ Employee_management_assingment/
 │   ├── Department.csv
 │   ├── Employee.csv
 │   ├── EmployeePosition.csv
-│   ├── EmployementContract.csv
+│   ├── EmploymentContract.csv
 │   ├── Faculty.csv
 │   ├── Leave.csv
 │   ├── PayRecord.csv
