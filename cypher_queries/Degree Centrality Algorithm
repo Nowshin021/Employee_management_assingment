@@ -1,0 +1,62 @@
+// =====================================================================
+// DEGREE CENTRALITY ALGORITHM
+// =====================================================================
+// Business Case:
+// Identifies the most connected employees, departments, and campuses
+// in the university network by counting their direct relationships.
+// High-degree entities are critical hubs — key collaborators, busy
+// campuses, or cross-functional departments — whose disruption would
+// impact operations. This helps HR with succession planning, resource
+// allocation, and breaking organisational silos.
+// =====================================================================
+
+// Step 1: Create an in-memory graph projection
+// Projects Employee, Department, Campus and UnitOffering nodes with
+// WORKS_IN, LOCATED_AT and DELIVERED_AT relationships (all undirected)
+// so the GDS algorithm can operate on them efficiently.
+CALL gds.graph.project(
+  'uniDegreeGraph',
+  ['Employee', 'Department', 'Campus', 'UnitOffering'],
+  {
+    WORKS_IN: {type: 'WORKS_IN', orientation: 'UNDIRECTED'},
+    LOCATED_AT: {type: 'LOCATED_AT', orientation: 'UNDIRECTED'},
+    DELIVERED_AT: {type: 'DELIVERED_AT', orientation: 'UNDIRECTED'}
+  }
+);
+
+
+// Step 2: Stream degree centrality scores
+// Runs the algorithm and returns each node's score (number of connections).
+// A CASE statement maps each node type to a readable name to avoid nulls.
+CALL gds.degree.stream('uniDegreeGraph')
+YIELD nodeId, score
+WITH gds.util.asNode(nodeId) AS n, score
+RETURN CASE 
+         WHEN 'UnitOffering' IN labels(n) THEN 'Offering #' + toString(n.unitOfferingId) + ' (' + coalesce(n.semester, '') + ' ' + coalesce(toString(n.year), '') + ')'
+         WHEN 'Employee' IN labels(n) THEN coalesce(n.name, 'Employee #' + toString(n.staffId))
+         WHEN 'Department' IN labels(n) THEN coalesce(n.name, 'Department #' + toString(n.deptId))
+         WHEN 'Campus' IN labels(n) THEN coalesce(n.name, 'Campus #' + toString(n.campusId))
+         ELSE coalesce(n.name, 'Entity #' + elementId(n))
+       END AS EntityName,
+       labels(n)[0] AS EntityType,
+       toInteger(score) AS DegreeCentralityScore
+ORDER BY DegreeCentralityScore DESC;
+
+
+// Step 3: Write scores back to the database
+// Persists each node's degree centrality score as a property so it can
+// be used for visualisation in Neo4j Browser or Bloom.
+CALL gds.degree.write('uniDegreeGraph', {
+  writeProperty: 'degreeCentrality'
+})
+YIELD nodePropertiesWritten;
+
+// Step 4: Visualise the results
+// Open Neo4j Browser/Bloom and style nodes by the 'degreeCentrality'
+// property — larger/darker nodes = more connected entities.
+
+
+
+// Step 5: Clean up — drop the in-memory graph projection
+// Frees server memory once the analysis is complete.
+CALL gds.graph.drop('uniDegreeGraph');
