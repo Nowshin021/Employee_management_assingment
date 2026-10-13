@@ -120,7 +120,7 @@ ON CREATE SET l.type = trim(row.type),
 
 
 // --- 2.12 Timesheet Nodes ---
-LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Nowshin021/Employee_management_assingment/nazia/csv_files/Timesheet.csv' AS row
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Nowshin021/Employee_management_assingment/nazia/csv_files/TimeSheet.csv' AS row
 MERGE (t:Timesheet {timesheetId: toInteger(row.timesheetID)})
 ON CREATE SET t.date = row.date,
               t.hoursWorked = toFloat(row.hoursWorked);
@@ -205,7 +205,7 @@ MATCH (coord:AcademicStaff {staffId: toInteger(row.coordinatorId)})
 MERGE (coord)-[:COORDINATES]->(uo);
 
 // --- 3.7 Timesheet submitted by Casual Sessional Staff and logged for Unit Offering ---
-LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Nowshin021/Employee_management_assingment/nazia/csv_files/Timesheet.csv' AS row
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Nowshin021/Employee_management_assingment/nazia/csv_files/TimeSheet.csv' AS row
 MATCH (e:CasualSessionalStaff {staffId: toInteger(row.staffId)})
 MATCH (t:Timesheet {timesheetId: toInteger(row.timesheetID)})
 MERGE (e)-[:SUBMITTED]->(t)
