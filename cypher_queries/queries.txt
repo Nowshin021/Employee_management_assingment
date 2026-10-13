@@ -1,4 +1,81 @@
-// USE CASE  (COMPLEX / ADVANCED): Talent Evaluation & Leadership Review Hierarchy
+// =============================================================================
+// USE CASE 1: Department Staff Directory & Campus Allocation
+// =============================================================================
+// Scenario:
+// HR management needs a consolidated directory of university employees.
+// This query connects employees with their departments, faculties and campuses,
+// while retrieving their position assignments. It supports organisational
+// reporting and workforce allocation across the university.
+// =============================================================================
+
+MATCH (e:Employee)-[:WORKS_IN]->(d:Department)
+MATCH (d)-[:BELONGS_TO]->(f:Faculty)
+MATCH (e)-[:LOCATED_AT]->(c:Campus)
+OPTIONAL MATCH (e)-[hp:HOLDS_POSITION]->(p:Position)
+RETURN
+    e.staffId AS StaffID,
+    e.name AS EmployeeName,
+    collect(DISTINCT CASE WHEN p IS NULL THEN null ELSE {
+        Position: p.title,
+        IsPrimary: hp.isPrimary = 1,
+        StartDate: hp.startDate,
+        EndDate: hp.endDate
+    } END) AS PositionAssignments,
+    d.name AS Department,
+    f.name AS Faculty,
+    c.name AS Campus
+ORDER BY Faculty, Department, EmployeeName;
+
+// =============================================================================
+// USE CASE 2: Casual Staff Workload & Payroll Analytics
+// =============================================================================
+// Scenario:
+// HR and payroll staff need to monitor casual sessional employees' recorded
+// hours and estimate their gross pay. This query aggregates submitted timesheets
+// for each employee and calculates estimated pay using the recorded hourly rate.
+// The result supports workload monitoring and preliminary payroll analysis.
+// =============================================================================
+
+MATCH (e:Employee:CasualSessionalStaff)-[:WORKS_IN]->(d:Department)
+OPTIONAL MATCH (e)-[:SUBMITTED]->(t:Timesheet)
+WITH e, d,
+     count(t) AS TimesheetCount,
+     coalesce(sum(t.hoursWorked), 0.0) AS TotalHours
+RETURN
+    e.staffId AS StaffID,
+    e.name AS StaffName,
+    d.name AS Department,
+    e.hourlyRate AS HourlyRate,
+    e.maxHoursPerWeek AS MaxHoursPerWeek,
+    TimesheetCount,
+    round(TotalHours * 100) / 100 AS TotalHours,
+    round(TotalHours * e.hourlyRate * 100) / 100 AS EstimatedGrossPay
+ORDER BY EstimatedGrossPay DESC;
+
+// ==============================================================================
+// USE CASE 3 : Multi-Hop Unit Offering Delivery & Teaching Staffing
+// ==============================================================================
+// Scenario:
+// The Academic Registrar must monitor unit offerings across multi-campus deliveries.
+// This multi-hop query traverses from UnitOfferings to their parent Unit, delivery Campus,
+// and associated Timesheet logs, identifying total hours taught and consolidating the
+// list of academic instructors involved in teaching each offering.
+// ==============================================================================
+ 
+MATCH (uo:UnitOffering)-[:OFFERS_UNIT]->(u:Unit)
+MATCH (uo)-[:DELIVERED_AT]->(c:Campus)
+OPTIONAL MATCH (t:Timesheet)-[:FOR_UNIT_OFFERING]->(uo)
+OPTIONAL MATCH (staff:Employee)-[:SUBMITTED]->(t)
+RETURN u.unitCode AS UnitCode,
+       u.title AS UnitTitle,
+       uo.semester + ' ' + toInteger(uo.year) AS Semester,
+       c.name AS CampusLocation,
+       count(DISTINCT t) AS TotalTimesheetLogs,
+       coalesce(sum(t.hoursWorked), 0.0) AS TotalTeachingHoursLogged,
+       collect(DISTINCT staff.name) AS InstructorsInvolved
+ORDER BY UnitCode, Semester;
+
+// USE CASE 4: Talent Evaluation & Leadership Review Hierarchy
 // ==============================================================================
 // Scenario:
 // For executive workforce promotion and retention planning, HR leadership needs to
@@ -28,27 +105,3 @@ RETURN e.staffId AS StaffID,
        collect(DISTINCT q.type + ' (' + q.institution + ')') AS Qualifications
 ORDER BY HighPerformer;
 
-
-// ==============================================================================
-// USE CASE  (HIGH COMPLEXITY): Multi-Hop Unit Offering Delivery & Teaching Staffing
-// ==============================================================================
-// Scenario:
-// The Academic Registrar must monitor unit offerings across multi-campus deliveries.
-// This multi-hop query traverses from UnitOfferings to their parent Unit, delivery Campus,
-// and associated Timesheet logs, identifying total hours taught and consolidating the
-// list of academic instructors involved in teaching each offering.
-// ==============================================================================
- 
-MATCH (uo:UnitOffering)-[:OFFERS_UNIT]->(u:Unit)
-MATCH (uo)-[:DELIVERED_AT]->(c:Campus)
-OPTIONAL MATCH (t:Timesheet)-[:FOR_UNIT_OFFERING]->(uo)
-OPTIONAL MATCH (staff:Employee)-[:SUBMITTED]->(t)
-RETURN u.unitCode AS UnitCode,
-       u.title AS UnitTitle,
-       uo.semester + ' ' + toInteger(uo.year) AS Semester,
-       c.name AS CampusLocation,
-       count(DISTINCT t) AS TotalTimesheetLogs,
-       coalesce(sum(t.hoursWorked), 0.0) AS TotalTeachingHoursLogged,
-       collect(DISTINCT staff.name) AS InstructorsInvolved
-ORDER BY UnitCode, Semester;
- 
