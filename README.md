@@ -60,10 +60,10 @@ Employee_management_assingment/
 
 #### 3. Graph Database Business Queries (Task 3)
 Four practical business query scenarios demonstrating varying levels of complexity:
-* **Use Case 1 (Basic):** Department Staff Directory & Campus Allocation.
-* **Use Case 2 (Moderate):** Casual Staff Workload & Payroll Analytics.
-* **Use Case 3 (High):** Multi-Hop Unit Offering Delivery & Staff Allocation across campuses.
-* **Use Case 4 (Advanced):** Talent Evaluation, Leadership Appraisal Hierarchy, and Qualification Mapping.
+* **Use Case 1 :** Department Staff Directory & Campus Allocation.
+* **Use Case 2 :** Casual Staff Workload & Payroll Analytics.
+* **Use Case 3 :** Multi-Hop Unit Offering Delivery & Staff Allocation across campuses.
+* **Use Case 4 :** Talent Evaluation, Leadership Appraisal Hierarchy, and Qualification Mapping.
 * **Script Location:** Documented in [`cypher_queries/queries.txt`](./cypher_queries/queries.txt).
 
 #### 4. Graph Data Science (GDS) Analytics (Tasks 4 & 5)
