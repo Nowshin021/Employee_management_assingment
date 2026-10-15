@@ -1,0 +1,71 @@
+// ==============================================================================
+// PRT563 ADVANCED DATA MANAGEMENT - ASSIGNMENT 4
+// Task 4: Centrality Algorithm (Neo4j Graph Data Science Library)
+// File contents : Degree centrality
+// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// STEP 0: Check the GDS library is installed and see its version
+// ------------------------------------------------------------------------------
+RETURN gds.version() AS gdsVersion;
+
+
+// ==============================================================================
+// USE CASE: Staff Responsibility Load (Degree Centrality)
+// ==============================================================================
+// Scenario:
+// HR wants to find which employees carry the most responsibility, measured as
+// the number of staff they manage, reviews they conduct and unit offerings
+// they coordinate. A high degree score flags staff who may be overloaded.
+// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// STEP 1: Project an in-memory graph for GDS
+// - Nodes: Employee, PerformanceReview, UnitOffering
+// - MANAGES: REPORTS_TO reversed, so the edge points manager -> direct report
+// - CONDUCTED_REVIEW: reviewer -> review
+// - COORDINATES: academic coordinator -> unit offering
+// ------------------------------------------------------------------------------
+CALL gds.graph.project(
+  'staffResponsibility',
+  ['Employee', 'PerformanceReview', 'UnitOffering'],
+  {
+    MANAGES:          { type: 'REPORTS_TO',       orientation: 'REVERSE' },
+    CONDUCTED_REVIEW: { type: 'CONDUCTED_REVIEW', orientation: 'NATURAL' },
+    COORDINATES:      { type: 'COORDINATES',      orientation: 'NATURAL' }
+  }
+)
+YIELD graphName, nodeCount, relationshipCount;
+
+
+// ------------------------------------------------------------------------------
+// STEP 2: Stream Degree Centrality on MANAGES only
+// Score = number of direct reports; employees with no reports are filtered out
+// ------------------------------------------------------------------------------
+CALL gds.degree.stream('staffResponsibility', { relationshipTypes: ['MANAGES'] })
+YIELD nodeId, score
+WHERE score > 0
+RETURN gds.util.asNode(nodeId).name AS Manager, score AS DirectReports
+ORDER BY DirectReports DESC;
+
+
+// ------------------------------------------------------------------------------
+// STEP 3: Write total degree (all three relationship types) back to the
+// database as property `responsibilityDegree` on each node
+// ------------------------------------------------------------------------------
+CALL gds.degree.write('staffResponsibility', { writeProperty: 'responsibilityDegree' })
+YIELD nodePropertiesWritten, centralityDistribution;
+
+
+// ------------------------------------------------------------------------------
+// STEP 4: Report - which employees carry the most overall responsibility
+// (managing + reviewing + coordinating), highest first
+// ------------------------------------------------------------------------------
+MATCH (e:Employee) WHERE e.responsibilityDegree > 0
+RETURN e.name, e.responsibilityDegree ORDER BY e.responsibilityDegree DESC LIMIT 500;
+
+
+// ------------------------------------------------------------------------------
+// OPTIONAL CLEAN-UP: remove the in-memory projection when finished
+// CALL gds.graph.drop('staffResponsibility');
+// ------------------------------------------------------------------------------
