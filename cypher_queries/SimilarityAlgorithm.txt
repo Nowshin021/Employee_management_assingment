@@ -1,0 +1,49 @@
+Similarity Algorithm
+
+Business Case:
+The highly responsible staff degree centrality algorithm found out were given a lot of tasks to handle. This create a high vulnerable situation in which if that person got sick or left the job then there would be a lot trouble in finding the able person.
+So to able to find the similar kind of ability in another peer, Node Similarity algorithm has been used.
+
+
+Step 1: In-memory Projection
+
+    CALL gds.graph.project(
+        'successionSimilarityGraph_final',
+        ['Employee', 'AcademicStaff', 'Position', 'Qualification', 'Department'],
+        {
+            ACHIEVED: {type: "ACHIEVED", orientation: 'UNDIRECTED'},
+            HOLDS_POSITION: {type: 'HOLDS_POSITION', oreientation: 'UNDIRECTED'},
+            WORKS_IN: {type: 'WORKS_IN', orientation: 'UNDIRECTED'}
+        }
+    )
+    YIELD graphName, nodeCount, relationshipCount;
+
+
+Step 2: Implement Node Similarity
+
+CALL gds.nodeSimilarity.stream('successionSimilarityGraph_final', {
+    similarityCutoff: 0.01,
+    degreeCutoff: 1,
+    topK: 5
+})
+YIELD node1, node1, similarity
+WITH gds.util.asNode(node1) AS OverloadedStaff,
+    gds.util.asNode(node2) AS BackupCandidate,
+    similarity AS CapabilityOverlapScore
+WHERE OverloadedStaff.name IN ['Henry Nguyen', 'Liam Carter']
+    AND BackupCandidate.name IS NOT NULL
+    AND OverloadedStaff <> BackupCandidate
+RETURN
+    OverloadedStaff.name AS HighRiskCentralStaff,
+    BackupCandidate.name AS RecommendedBackupPeer,
+    round(CapabilityOverlapScore, 3) AS JaccardMatchScore,
+    CASE
+        WHEN CapabilityOverlapScore >= 0.20 THEN 'Seconday Functional Delegate'
+        ELSE 'Partial Qualification Match'
+        END AS HRActionRecommendation
+    ORDER_BY HighRiskCentralStaff ASC, JaccardMatchScore DESC;
+
+
+The similarity algorithm showed that there is no single individual to match the 100% trait of Henry and Liam. But caditate scores clustered around a 22.2% match. This means HR cannot simply hand off all of Henry and Liam's duties to one individual. However, the tasks can be delegated through out different individuals based on their skills.
+
+In this scenario, it is found that James O'Connor and Samuel Patel shared those traits and the task can be distributed between them to perform similar kind of job like Henry and Liam.
